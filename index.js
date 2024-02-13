@@ -33,7 +33,7 @@ const engineer = [
   {
     name: "github",
     type: "input",
-    message: "What's the engineer's GitHub user?",
+    message: "What's the engineer's GitHub username?",
   },
 ]
 
