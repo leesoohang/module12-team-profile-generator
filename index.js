@@ -9,13 +9,10 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./src/page-template.js");
-const Employee = require("./lib/Employee.js");
-
 
 // TODO: Write Code to gather information about the development team members, and render the HTML file.
-// When a user starts the application, they're prompted to enter the team manager's:Name Employee ID Email address Office number
-
-
+// Set up an array to collect team member info
+const teamArray = [];
 
 const engineer = [
    {
@@ -61,6 +58,7 @@ const intern = [
     type: "input",
     message: "What's the intern's school?",
   },
+
 ]
 
 const manager = [
@@ -84,37 +82,74 @@ const manager = [
 		type: "input",
 		message: "What's the team manager's office number?",
 	},
-	{
-		name: "next",
-		type: "list",
-		message: "Choose a member you want to add: ",
-		choices: [
-			{ name: "Engineer", value: engineer },
-			{ name: "Intern", value: intern },
-			"I don't want to add any more members.",
-		],
-	},
+  
 ];
 
+// prompts to trigger questions when adding a new member
 
+function promptManager() {
+  inquirer.prompt(manager)
+  .then((data) => {
+      const addManager = new Manager(data.name, data.id, data.email, data.officeNumber);
+      teamArray.push(addManager);
+      addMember();
+      });
+}
 
-function writeToFile(outputPath, render) {
-  fs.appendFile(outputPath, render, (err) => {
-    err? console.error(err) : console.log("Team Profile page generated!")    
+function promptEngineer() {
+  inquirer.prompt(engineer)
+  .then((data) => {
+      const addEngineer = new Engineer(data.name, data.id, data.email, data.github);
+      teamArray.push(addEngineer);
+      addMember();
     })
 }
 
-function init() {
-inquirer.prompt(manager).
-then((answers) => {
-  if ((answers.next) === "Engineer") {
-    inquirer.prompt(engineer);
-  } else if ((answers.next) === "Intern") {
-    inquirer.prompt(intern);
-  } else {
-    process.exit();
-  }
-  })
+function promptIntern() {
+  inquirer.prompt(intern)
+    .then((data) => {
+      const addIntern = new Intern(data.name, data.id, data.email, data.school);
+      teamArray.push(addIntern);
+      addMember();
+    })
 }
 
-init()
+// prompt to add member after completing manager info
+
+function addMember() {
+inquirer.prompt({
+		name: "add",
+		type: "list",
+		message: "Choose a member you want to add: ",
+		choices: [
+			"Engineer",
+			"Intern",
+			"I don't want to add any more members.",
+		],
+	})
+  .then((answers) => {
+      
+      switch (answers.add) {
+        case "Engineer":
+          promptEngineer();
+          break;
+        case "Intern":
+          promptIntern();
+          break;
+        case "I don't want to add any more members.":
+          generateHTML();
+          break;
+      }
+    });
+}
+
+
+function generateHTML() {
+  fs.writeFile(outputPath, render(teamArray), (err) => {
+    err? console.error(err) : console.log(`Team Profile page generated! File location: ${outputPath}`)    
+  }) 
+}
+
+// initialize the program by asking manager info first
+promptManager();
+
