@@ -69,7 +69,7 @@ const manager = [
 	},
 	{
 		name: "id",
-		type: "number",
+		type: "input",
 		message: "What's the team manager's ID?",
 	},
 	{
@@ -145,6 +145,9 @@ inquirer.prompt({
 
 
 function generateHTML() {
+  if (!fs.existsSync(OUTPUT_DIR)) {
+      fs.mkdirSync(OUTPUT_DIR);
+    }
   fs.writeFile(outputPath, render(teamArray), (err) => {
     err? console.error(err) : console.log(`Team Profile page generated! File location: ${outputPath}`)    
   }) 
